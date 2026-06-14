@@ -6,7 +6,6 @@ pipeline {
         EC2_IP = 'ec2-65-0-71-207.ap-south-1.compute.amazonaws.com'
         EC2_USER = 'ubuntu'
         APP_DIR = '/home/ubuntu/flask-app'
-        SSH_KEY = 'ec2-ssh-credentials'
     }
     
     stages {
@@ -21,7 +20,7 @@ pipeline {
         stage('Copy Files to EC2') {
             steps {
                 echo "📤 Copying files to EC2..."
-                withCredentials([sshUserPrivateKey(credentialsId: "${SSH_KEY}", keyFileVariable: 'SSH_KEY_FILE', usernameVariable: 'SSH_USER')]) {
+                withCredentials([sshUserPrivateKey(credentialsId: 'ec2-ssh-credentials', keyFileVariable: 'SSH_KEY_FILE', usernameVariable: 'SSH_USER')]) {
                     sh '''
                         ssh -i $SSH_KEY_FILE -o StrictHostKeyChecking=no ${SSH_USER}@${EC2_IP} "mkdir -p ${APP_DIR}"
                         scp -i $SSH_KEY_FILE -o StrictHostKeyChecking=no -r . ${SSH_USER}@${EC2_IP}:${APP_DIR}/
@@ -33,7 +32,7 @@ pipeline {
         stage('Deploy on EC2') {
             steps {
                 echo "🚀 Deploying on EC2..."
-                withCredentials([sshUserPrivateKey(credentialsId: "${SSH_KEY}", keyFileVariable: 'SSH_KEY_FILE', usernameVariable: 'SSH_USER')]) {
+                withCredentials([sshUserPrivateKey(credentialsId: 'ec2-ssh-credentials', keyFileVariable: 'SSH_KEY_FILE', usernameVariable: 'SSH_USER')]) {
                     sh '''
                         ssh -i $SSH_KEY_FILE -o StrictHostKeyChecking=no ${SSH_USER}@${EC2_IP} "
                             cd ${APP_DIR}
@@ -50,7 +49,7 @@ pipeline {
         stage('Verify Deployment') {
             steps {
                 echo "✅ Verifying deployment..."
-                withCredentials([sshUserPrivateKey(credentialsId: "${SSH_KEY}", keyFileVariable: 'SSH_KEY_FILE', usernameVariable: 'SSH_USER')]) {
+                withCredentials([sshUserPrivateKey(credentialsId: 'ec2-ssh-credentials', keyFileVariable: 'SSH_KEY_FILE', usernameVariable: 'SSH_USER')]) {
                     sh '''
                         ssh -i $SSH_KEY_FILE -o StrictHostKeyChecking=no ${SSH_USER}@${EC2_IP} "
                             echo '--- Running Containers ---'
