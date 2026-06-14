@@ -57,7 +57,7 @@ pipeline {
                         
                         icacls "!keyPath!" /inheritance:r /grant:r "SYSTEM:(F)"
                         ssh -i "!keyPath!" -o StrictHostKeyChecking=no "!server!" ^
-                            "cd !appDir! && docker compose down || true && sleep 3 && docker compose up -d --build && sleep 10"
+                            "cd !appDir! && docker-compose down || true && sleep 3 && docker-compose up -d --build && sleep 10"
                     '''
                 }
             }
@@ -77,7 +77,7 @@ pipeline {
                         
                         icacls "!keyPath!" /inheritance:r /grant:r "SYSTEM:(F)"
                         ssh -i "!keyPath!" -o StrictHostKeyChecking=no "!server!" ^
-                            "docker ps && echo. && cd !appDir! && docker compose logs --tail 20"
+                            "docker ps && echo. && cd !appDir! && docker-compose logs --tail 20"
                     '''
                 }
             }
