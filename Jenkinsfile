@@ -29,8 +29,15 @@ pipeline {
                         set "appDir=%APP_DIR%"
                         
                         icacls "!keyPath!" /inheritance:r /grant:r "SYSTEM:(F)"
+                        
+                        REM Remove old directory
+                        ssh -i "!keyPath!" -o StrictHostKeyChecking=no "!server!" "rm -rf !appDir!"
+                        
+                        REM Create fresh directory
                         ssh -i "!keyPath!" -o StrictHostKeyChecking=no "!server!" "mkdir -p !appDir!"
-                        scp -i "!keyPath!" -o StrictHostKeyChecking=no -r "." "!server!:!appDir!/"
+                        
+                        REM Copy files (excluding .git)
+                        scp -i "!keyPath!" -o StrictHostKeyChecking=no -r --exclude=.git "." "!server!:!appDir!/"
                     '''
                 }
             }
