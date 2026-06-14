@@ -28,13 +28,8 @@ pipeline {
                         set "server=%EC2_USER%@%EC2_IP%"
                         set "appDir=%APP_DIR%"
                         
-                        REM Fix key permissions - remove all then grant only to SYSTEM
                         icacls "!keyPath!" /inheritance:r /grant:r "SYSTEM:(F)"
-                        
-                        REM Create directory on EC2
                         ssh -i "!keyPath!" -o StrictHostKeyChecking=no "!server!" "mkdir -p !appDir!"
-                        
-                        REM Copy files to EC2
                         scp -i "!keyPath!" -o StrictHostKeyChecking=no -r "." "!server!:!appDir!/"
                     '''
                 }
@@ -53,9 +48,7 @@ pipeline {
                         set "server=%EC2_USER%@%EC2_IP%"
                         set "appDir=%APP_DIR%"
                         
-                        REM Fix key permissions again for this stage
                         icacls "!keyPath!" /inheritance:r /grant:r "SYSTEM:(F)"
-                        
                         ssh -i "!keyPath!" -o StrictHostKeyChecking=no "!server!" ^
                             "cd !appDir! && docker compose down || true && sleep 3 && docker compose up -d --build && sleep 10"
                     '''
@@ -75,15 +68,14 @@ pipeline {
                         set "server=%EC2_USER%@%EC2_IP%"
                         set "appDir=%APP_DIR%"
                         
-                        REM Fix key permissions again for this stage
                         icacls "!keyPath!" /inheritance:r /grant:r "SYSTEM:(F)"
-                        
                         ssh -i "!keyPath!" -o StrictHostKeyChecking=no "!server!" ^
                             "docker ps && echo. && cd !appDir! && docker compose logs --tail 20"
                     '''
                 }
             }
         }
+    }
     
     post {
         success {
