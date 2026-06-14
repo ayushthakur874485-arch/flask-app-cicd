@@ -28,8 +28,8 @@ pipeline {
                         set "server=%EC2_USER%@%EC2_IP%"
                         set "appDir=%APP_DIR%"
                         
-                        REM Fix key permissions
-                        icacls "!keyPath!" /inheritance:r /grant:r "Administrators:(F)" /grant:r "SYSTEM:(F)" /grant:r "Everyone:(F)"
+                        REM Fix key permissions - remove all then grant only to SYSTEM
+                        icacls "!keyPath!" /inheritance:r /grant:r "SYSTEM:(F)"
                         
                         REM Create directory on EC2
                         ssh -i "!keyPath!" -o StrictHostKeyChecking=no "!server!" "mkdir -p !appDir!"
