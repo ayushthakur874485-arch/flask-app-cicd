@@ -13,7 +13,7 @@ pipeline {
             steps {
                 echo "🔄 Cloning repository..."
                 deleteDir()
-                git branch: 'main', url: 'https://github.com/${GITHUB_REPO}.git'
+                git branch: 'main', url: 'https://github.com/ayushthakur874485-arch/flask-app-cicd.git'
             }
         }
         
