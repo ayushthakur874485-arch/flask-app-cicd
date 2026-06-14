@@ -36,8 +36,8 @@ pipeline {
                         REM Create fresh directory
                         ssh -i "!keyPath!" -o StrictHostKeyChecking=no "!server!" "mkdir -p !appDir!"
                         
-                        REM Copy files (excluding .git)
-                        scp -i "!keyPath!" -o StrictHostKeyChecking=no -r --exclude=.git "." "!server!:!appDir!/"
+                        REM Copy files
+                        scp -i "!keyPath!" -o StrictHostKeyChecking=no -r "." "!server!:!appDir!/"
                     '''
                 }
             }
