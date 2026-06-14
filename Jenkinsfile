@@ -20,19 +20,22 @@ pipeline {
             steps {
                 echo "📤 Copying files to EC2..."
                 withCredentials([sshUserPrivateKey(credentialsId: 'ec2-ssh-credentials', keyFileVariable: 'SSH_KEY_FILE', usernameVariable: 'SSH_USER')]) {
-                    powershell '''
-                        $keyPath = $env:SSH_KEY_FILE
-                        $server = "${env:EC2_USER}@${env:EC2_IP}"
-                        $appDir = $env:APP_DIR
+                    bat '''
+                        @echo off
+                        setlocal enabledelayedexpansion
                         
-                        # Fix key permissions
-                        icacls "$keyPath" /inheritance:r /grant:r "$($env:USERNAME):(F)" | Out-Null
+                        set "keyPath=%SSH_KEY_FILE%"
+                        set "server=%EC2_USER%@%EC2_IP%"
+                        set "appDir=%APP_DIR%"
                         
-                        # Create directory on EC2
-                        ssh -i "$keyPath" -o StrictHostKeyChecking=no "$server" "mkdir -p $appDir"
+                        REM Fix key permissions
+                        icacls "!keyPath!" /inheritance:r /grant:r "Administrators:(F)" /grant:r "SYSTEM:(F)" /grant:r "Everyone:(F)"
                         
-                        # Copy files to EC2
-                        scp -i "$keyPath" -o StrictHostKeyChecking=no -r "." "${server}:${appDir}/"
+                        REM Create directory on EC2
+                        ssh -i "!keyPath!" -o StrictHostKeyChecking=no "!server!" "mkdir -p !appDir!"
+                        
+                        REM Copy files to EC2
+                        scp -i "!keyPath!" -o StrictHostKeyChecking=no -r "." "!server!:!appDir!/"
                     '''
                 }
             }
@@ -42,19 +45,16 @@ pipeline {
             steps {
                 echo "🚀 Deploying on EC2..."
                 withCredentials([sshUserPrivateKey(credentialsId: 'ec2-ssh-credentials', keyFileVariable: 'SSH_KEY_FILE', usernameVariable: 'SSH_USER')]) {
-                    powershell '''
-                        $keyPath = $env:SSH_KEY_FILE
-                        $server = "${env:EC2_USER}@${env:EC2_IP}"
-                        $appDir = $env:APP_DIR
+                    bat '''
+                        @echo off
+                        setlocal enabledelayedexpansion
                         
-                        # Deploy
-                        ssh -i "$keyPath" -o StrictHostKeyChecking=no "$server" @"
-                        cd $appDir
-                        docker compose down || true
-                        sleep 3
-                        docker compose up -d --build
-                        sleep 10
-"@
+                        set "keyPath=%SSH_KEY_FILE%"
+                        set "server=%EC2_USER%@%EC2_IP%"
+                        set "appDir=%APP_DIR%"
+                        
+                        ssh -i "!keyPath!" -o StrictHostKeyChecking=no "!server!" ^
+                            "cd !appDir! && docker compose down || true && sleep 3 && docker compose up -d --build && sleep 10"
                     '''
                 }
             }
@@ -64,19 +64,16 @@ pipeline {
             steps {
                 echo "✅ Verifying deployment..."
                 withCredentials([sshUserPrivateKey(credentialsId: 'ec2-ssh-credentials', keyFileVariable: 'SSH_KEY_FILE', usernameVariable: 'SSH_USER')]) {
-                    powershell '''
-                        $keyPath = $env:SSH_KEY_FILE
-                        $server = "${env:EC2_USER}@${env:EC2_IP}"
-                        $appDir = $env:APP_DIR
+                    bat '''
+                        @echo off
+                        setlocal enabledelayedexpansion
                         
-                        ssh -i "$keyPath" -o StrictHostKeyChecking=no "$server" @"
-                        echo "--- Running Containers ---"
-                        docker ps
-                        echo ""
-                        echo "--- Docker Compose Logs ---"
-                        cd $appDir
-                        docker compose logs --tail 20
-"@
+                        set "keyPath=%SSH_KEY_FILE%"
+                        set "server=%EC2_USER%@%EC2_IP%"
+                        set "appDir=%APP_DIR%"
+                        
+                        ssh -i "!keyPath!" -o StrictHostKeyChecking=no "!server!" ^
+                            "docker ps && echo. && cd !appDir! && docker compose logs --tail 20"
                     '''
                 }
             }
