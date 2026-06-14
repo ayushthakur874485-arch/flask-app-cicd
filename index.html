@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DevOps Two-Tier Flask App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 10px 10px 0 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        .form-container {
+            background: white;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .form-group {
+            display: flex;
+            gap: 10px;
+        }
+        
+        input[type="text"] {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        button {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .messages-container {
+            background: white;
+            padding: 25px;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .messages-container h2 {
+            color: #333;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .message-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .message-item {
+            padding: 15px;
+            margin-bottom: 10px;
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            border-radius: 5px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .message-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+        }
+        
+        .message-id {
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .message-text {
+            color: #333;
+            word-wrap: break-word;
+        }
+        
+        .timestamp {
+            color: #999;
+            font-size: 0.9em;
+            margin-top: 8px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+        
+        .empty-state p {
+            font-size: 1.1em;
+            margin-bottom: 15px;
+        }
+        
+        .emoji {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+        
+        .info-banner {
+            background: #e8f4f8;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            color: #0c5460;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📝 DevOps Two-Tier App</h1>
+            <p>Flask + MySQL deployed with Jenkins CI/CD</p>
+        </div>
+        
+        <div class="info-banner">
+            <strong>ℹ️ Info:</strong> This app is running on Docker containers orchestrated by Docker Compose, deployed via Jenkins.
+        </div>
+        
+        <div class="form-container">
+            <form method="POST" action="/add_message">
+                <div class="form-group">
+                    <input type="text" name="message" placeholder="Add a new message..." required maxlength="500">
+                    <button type="submit">Send</button>
+                </div>
+            </form>
+        </div>
+        
+        <div class="messages-container">
+            <h2>💬 Messages</h2>
+            <div class="message-list">
+                {% if messages %}
+                    {% for msg in messages %}
+                        <div class="message-item">
+                            <div>
+                                <span class="message-id">#{{ msg['id'] }}</span>
+                                <span class="message-text">{{ msg['message'] }}</span>
+                            </div>
+                            <div class="timestamp">📅 {{ msg['created_at'] if msg['created_at'] else 'Just now' }}</div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <div class="emoji">📭</div>
+                        <p>No messages yet!</p>
+                        <p>Add one above to get started.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>
